@@ -45,10 +45,10 @@ Each `Comment` has the following properties
 
 Each `User` has the following properties
 
-        self.user_id = user_id
-        self.data = data
-        self.name = name
-        self.about = about
+- **user_id** - user id of the user
+- **data** - data represents the data class
+- **name** - username of the User
+- **about** - about the user
 
 
 

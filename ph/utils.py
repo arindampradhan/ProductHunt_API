@@ -17,6 +17,4 @@ def comment_soup(product_id):
     Returns a bs4 object of the requested Comment
     """
     url = BASE_URL + '/posts/' + str(product_id)+ "?modal=true"
-    soup = BeautifulSoup(requests.get(url).text)
-    #http://www.producthunt.com/posts/10923?modal=true
-	#http://www.producthunt.com/posts/drawtype?modal=true
+    return BeautifulSoup(requests.get(url).text)

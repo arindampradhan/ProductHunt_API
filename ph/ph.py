@@ -25,7 +25,14 @@ class PH(object):
         self.more = ''    
 
 
+    def _next_page(self,url,current_page):
+        """
+        Get the relative url of the next page adding a ?page= query
+        """
+        # soup is not needed
+        return url + "?page=" + str(current_page+1)
 
+    @classmethod
     def _build_product(self,soup):
         """
         Builds and returns a list of product from the front page
@@ -34,7 +41,7 @@ class PH(object):
         all_products = []
 
 
-        page = requests.get(URL).text 
+        page = requests.get(BASE_URL).text 
         soup = BeautifulSoup(page)
         posts_html = soup.find('div',id="posts-wrapper").find('div',class_="posts")
         post = posts_html.find_all('li',class_=re.compile(r'(post hidden-post|post)'))
@@ -45,7 +52,7 @@ class PH(object):
             published_time = product.find_parent("div",class_=re.compile(r'(day today|day)')).time['datetime']
             prod = product.find('div',class_="url")
             url  = prod.a['href']
-            link = urlparse.urljoin(URL,url)
+            link = urlparse.urljoin(BASE_URL,url)
             domain = requests.get(link).url
             title = prod.a.string
             description = prod.find('span', class_="post-tagline description").string
@@ -60,9 +67,8 @@ class PH(object):
             all_products.append(product)
         return all_products
 
-
-
-    def get_products(self,page_num='',limit=30):
+    @classmethod      
+    def get_products(self,page_num='page1',limit=30):
         """
         Yields a list of stories from the passed page
         of PH.
@@ -79,15 +85,15 @@ class PH(object):
             limit = 30
         products_found = 0
 
-        while product_found < limit:
+        while products_found < limit:
             soup = get_soup(page_num)
             products =  self._build_product(soup)    
 
             for product in products:
                 yield product         
-                product_found += 1
+                products_found += 1
 
-                if product_found == limit:
+                if products_found == limit:
                     return 
 
 
@@ -112,7 +118,7 @@ class Product(object):
         """
         return '<Product: ID={0}>'.format(self.product_id)
 
-    def _build_comments(soup):
+    def _build_comments(self,soup):
         """
         For the Product,builds and returns a list of comment objects.
         """
@@ -168,19 +174,14 @@ class Product(object):
         link = post_info.find('a', class_="post-url")['href']
         link = urlparse.urljoin(BASE_URL,link)
         domain = requests.get(link).url
-
+        print upvote,post_info,submitted
         title = post_info.a.string
         description = post_info.find('span', class_="post-tagline description").string
         num_comments = int(soup.find_all('h2', class_="subhead")[1].string.split(" ")[0])
         Product(upvote,product_id,title,link,domain,submitter,submitter_id,published_time,num_comments)
         return Product
 
-    def next_page(self,url,current_page):
-        """
-        Get the relative url of the next page adding a ?page= query
-        """
-        # soup is not needed
-        return url + "?page=" + str(current_page+1)
+
 
     def comments(self):
         """
@@ -188,6 +189,7 @@ class Product(object):
         """
         soup = comment_soup(self.product_id)
         return self._build_comments(soup)
+
 
 class Comment(object):
     """Represents a comment for the discussion in a product"""
@@ -204,6 +206,7 @@ class Comment(object):
     def __repr__(self):
         return '<Comment: ID={0}>'.format(self.comment_id)
         
+
 class User(object):
     """Represents a user in PH"""
     def __init__(self, user_id,data,name,about):
