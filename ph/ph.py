@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 
 """
 Python API for Product Hunt.
@@ -101,16 +101,15 @@ class Product(object):
     """Product class represents a single product or post on PH"""
     def __init__(self, upvote,product_id,title,link,domain,submitter,\
         submitter_id,published_time,num_comments):
-        super(Product, self).__init__()
-        self.upvote = upvote
-        self.product_id = product_id
-        self.title = title
-        self.link = link
-        self.domain = domain
+        self.upvote = upvote#
+        self.product_id = product_id#
+        self.title = title#
+        self.link = link#
+        self.domain = domain#
         self.submitter = submitter
         self.submitter_id = submitter_id
-        self.published_time = published_time
-        self.num_comments = num_comments
+        self.published_time = published_time#
+        self.num_comments = num_comments#
         
     def __repr__(self):
         """
@@ -118,87 +117,79 @@ class Product(object):
         """
         return '<Product: ID={0}>'.format(self.product_id)
 
+
+        self.comment_id = comment_id
+        self.parent_id = parent_id
+        self.flag = flag 
+        # self.user = user
+        self.body_html = body_html
+        self.upvote = upvote
     def _build_comments(self,soup):
         """
         For the Product,builds and returns a list of comment objects.
         """
         COMMENTS = []
-        c_soup = soup
-        c_soup.find('div',class_="post_show")
+        c_soup = soup.find('section',class_="modal-post--comments")
 
-        post_show = c_soup.find('div',class_="post-show")
-        num_comment = post_show.find('h2', class_="subhead")
-        comment_htmls = post_show.find_all('div',class_= re.compile(r'^(comment|comment child)$'))
-
-        #regex for comment extraction compile outside for faster for loop
-        regex = re.compile(r"<a.*?</a>", re.IGNORECASE)
-        reg_div = re.compile(r"(?s)<div(?: [^>]*)?>(.*?)<\/div>")
-
-        for comment_html in comment_htmls:
-            c_upvote = comment_html.find('span',class_="vote-count").string
-            c_id = comment_html['data-comment-id']
-            p_id = comment_html.find_parent('div',class_="comment-thread")['data-parent-id'] # parent id
-            c_flag = (c_id == p_id)
-            #getting comment using regex
-            
-            c_comment = str(comment_html.find('div',class_="actual-comment"))
-            c_comment = str(regex.sub("",c_comment))
-            c_comment = str(reg_div.findall(c_comment)[0])
-            c_user = comment_html.find('h2', class_="comment-user-name").a.string
-            
-            # creating and appending to the class method
-            comment = Comment(c_id,p_id,c_flag,c_user,c_comment,comment_html,c_upvote) 
-            COMMENTS.append(comment)
+        post_show = c_soup.find('main', {"data-comment":"list"})
+        num_comment = c_soup.h2.string.split(" ")[0]
+        comments_htmls = post_show.find_all("div", class_="modal-post--comment",recursive=False)
+        print comments_htmls
+        for html_comment in comments_htmls:
+            sub_comments = html_comment.find_all("span",{"data-popover":"hover"})
+            parent_id = ""
+            for sub_comment in sub_comments:
+                body_html = sub_comment.next_sibling()
+                user_id= sub_comment.find("a",{"data-component":"FollowMarker"})["data-follow-id"]
+                upvote = body_html.find("span",{data-vote-count:""}).string
+                comment_id = body_html['id'].split('-')[1]
+                if sub_comment == sub_comments[0]:
+                    flag = True
+                    parent_id = comment_id
+                else:
+                    flag = False
+                Comment(user_id,comment_id,parent_id,flag,body,body_html,upvote)
+            COMMENTS.append(Comment)
         return COMMENTS
 
     @classmethod
-    def formid(self,product_id):
-        """
+    def get(self,product_id):
+        """div class="modal-post--comment" data-comment=
         Initializes an instance of Story for given item_id.    Initialize the instance by giving the product_id
         """
         if not product_id:
-            raise Exception('Need an product_id for a Story')
+            raise Exception('Need an formid for a Story')
 
-        soup = comment_soup(product_id)
-        product = soup.find('div',class_="comments-header")
-        
-        upvote = int(product.find('span', class_="vote-count").string)
-        posted_by = product.find('span', class_="posted-by")
-        published_time = posted_by.find('abbr')['title']
-
-        post_user = product.find('span', class_="post-user")        
-        submitter = post_user.find('div', class_="user-hover-card").h3.string
-        submitter_id = post_user.find_all('a')[-1]['data-follow-id']
-
-        post_info = product.find('div', class_="post-info")
-        link = post_info.find('a', class_="post-url")['href']
+        soup = comment_soup(str(product_id))
+        product = soup.find('div',class_="modal-post")
+        title = product.find("h1").a.string
+        link = product.find("h1").a['href']
         link = urlparse.urljoin(BASE_URL,link)
+        upvote = int(product.find('span', class_="vote-count").string)
+        posted_by = product.find('div', class_="modal-post--submitted")
+        published_time = posted_by.find('span',{"data-component":"TimeAgo"})['title']
+        num_comments = int(product.find("section", class_="modal-post--comments").h2.string.split(" ")[0])
         domain = requests.get(link).url
-        print upvote,post_info,submitted
-        title = post_info.a.string
-        description = post_info.find('span', class_="post-tagline description").string
-        num_comments = int(soup.find_all('h2', class_="subhead")[1].string.split(" ")[0])
-        Product(upvote,product_id,title,link,domain,submitter,submitter_id,published_time,num_comments)
-        return Product
+        submitter = posted_by.find('h3').string
+        submitter_id = posted_by.find('a',{"data-component":"FollowMarker"})['data-follow-id']
+        return Product(upvote,product_id,title,link,domain,submitter,submitter_id,published_time,num_comments)
 
-
-
-    def comments(self):
+    def get_comments(self):
         """
         Return a list of Comment(s) for the product
         """
         soup = comment_soup(self.product_id)
         return self._build_comments(soup)
 
+# comment class here
 
 class Comment(object):
     """Represents a comment for the discussion in a product"""
-    def __init__(self, comment_id,parent_id,flag,user,body,body_html,upvote):
-        super(Comment, self).__init__()
+    def __init__(self, user_id,comment_id,parent_id,flag,body,body_html,upvote):
+        self.user_id = user_id
         self.comment_id = comment_id
         self.parent_id = parent_id
         self.flag = flag # whether it is a parent comment or not
-        self.user = user
         self.body = body
         self.body_html = body_html
         self.upvote = upvote
@@ -209,18 +200,33 @@ class Comment(object):
 
 class User(object):
     """Represents a user in PH"""
-    def __init__(self, user_id,data,name,about):
-        super(User, self).__init__()
+    def __init__(self, user_id,user_name,about,upvote,submitted,made,followers,followings,twitter):
         self.user_id = user_id
-        self.data = data
-        self.name = name
+        self.user_name = user_name
         self.about = about
-
-    def __repr__(self):
-        return '{0} {1} {2}'.format(self.user_id,self.name,self.about)
+        self.upvote = upvote
+        self.submitted = submitted
+        self.made = made
+        self.followers = followers
+        self.followings = followings
+        self.twitter = twitter
 
     @classmethod
-    def userid(self,user_id):
+    def __repr__(self):
+        print """
+        user_id = {0}
+        user_name = {1}
+        about = {2}
+        upvote = {3}
+        submitted = {4}
+        made = {5}
+        followers = {6}
+        followings = {7}
+        twitter = {8}""".format(str(self.user_id),self.user_name,self.about,self.upvote,\
+            self.submitted,self.made,self.followers,self.followings,self.twitter)
+
+    @classmethod
+    def get(self,user_id):
         """
         Initialize an instance of a user from a given user id
         """
@@ -232,42 +238,49 @@ class User(object):
             return TAG_RE.sub('', text)
 
         u_url = "http://www.producthunt.com/" + str(user_id)
-        u_page = requests.get(u_url).text
-        u_soup = BeautifulSoup(u_page)
-        u_soup = u_soup.find('div',class_="main-content")
+        req = requests.get(u_url)
+        u_page = req.text
+        soup = BeautifulSoup(u_page)
 
-        about = u_soup.find('h2',class_="page-header--subtitle").string
-        user = u_soup.find("h1",class_="page-header--title")
+        about = soup.find('h2',class_="page-header--subtitle").string
+        user = soup.find("h1",class_="page-header--title")
         user_text =  remove_tags(str(user))
-
-        user_id = int(user_text.split("#")[1])
         user_name = user_text.split("#")[0]
 
-        nav = u_soup.find('nav',class_="page-header--navigation")
+        nav = soup.find('nav',class_="page-header--navigation")
         upvote_u = nav.find_all('strong')
+        u_twitter = req.url.split('/')[-1]
 
-        u_num_upvote = upvote_u[0].string
-        u_num_submit = upvote_u[1].string
-        u_num_made = upvote_u[2].string
-        u_num_followers = upvote_u[3].string
-        u_num_following = upvote_u[4].string
-        data(u_num_upvote,u_num_submit,u_num_made,u_num_followers,u_num_following)
-        User(user_id,data,user_name,about)
+        # check if it is a user or org (submit or non submit)
+        if len(upvote_u) > 4:
+            u_num_upvote = upvote_u[0].string
+            u_num_submit = upvote_u[1].string
+            u_num_made = upvote_u[2].string
+            u_num_followers = upvote_u[3].string
+            u_num_following = upvote_u[4].string
+            return User(user_id,user_name,about,u_num_upvote,u_num_submit,u_num_made,u_num_followers,u_num_following,u_twitter)
+        else:
+            u_num_upvote = upvote_u[0].string
+            u_num_made = upvote_u[1].string
+            u_num_followers = upvote_u[2].string
+            u_num_following = upvote_u[3].string
+            return User(user_id,user_name,about,u_num_upvote,None,u_num_made,u_num_followers,u_num_following,u_twitter)
 
-    def vote_ids(self,user_id,param=""):
+
+    @classmethod
+    def get_votes(self,limit=50,page_count_limit=3):
         """
         gives the ids of upvoted products,submitted products and made products\n
         \tparam = upvoted\n (default)
         \tparam = products\n
         \tparam = posts\n 
         """
-        if not user_id:
-            raise Exception('Need an user_id for a user,create the userid first')
-
-        url = "http://www.producthunt.com/"+ str(user_id) + str(param) 
-        page_count=1
+        url = BASE_URL + str(self.twitter) 
+        page_count = 1
         data_ids = []
-        while 1:
+
+        while page_count < page_count_limit:
+
             current_page = requests.get(url+"?page="+str(page_count)).text
             soup  = BeautifulSoup(current_page)
             post_group = soup.find('ul',class_="posts-group")
@@ -278,39 +291,49 @@ class User(object):
             page_count = page_count+1
             if len(soup.find_all('li', class_="post")) is 0:
                 break
-        return data_ids
+        return data_ids[:limit]
+        print len(data_ids)
 
-    def follow_ids(url,param="followers"):   
+    @classmethod
+    def _build_follow(self,limit,page_count_limit,follow_type):
         """
-        gives the ids of followers and followings
-        \t followers\n
-        \t followings\n
+        Type is a follower or following
         """
-        url = "http://www.producthunt.com/" + str(param) 
+        user_id = self.user_id
+        url = "{0}{1}/{2}".format(BASE_URL,user_id,follow_type)
         page_count=1
-        follow_ids = []
-        while 1:
+        followers = []
+        count=0
+        while page_count < page_count_limit:
             current_page = requests.get(url+"?page="+str(page_count)).text
             soup  = BeautifulSoup(current_page)
             follow_group = soup.find_all("li", class_="people--person")
             
             for follow in follow_group:
                 follow_id = follow.find('div', class_="user-hover-card").find('a', class_="button")['data-follow-id']
-                follow_ids.append(follow_id)
+                followers.append(follow_id)
+                count = count + 1
+            if count >= limit:
+                break
             page_count = page_count+1
             if len(soup.find('ul', class_="people").find_all('li',class_='people--person'))  == 0:
                 break
-        return follow_ids
+        return followers[:limit]
 
-class data(object):
-    """data created by the user"""
-    def __init__(self, upvote,submitted,made,followers,followings):
-        super(data, self).__init__()
-        self.upvote = upvote
-        self.submitted = submitted
-        self.made = made
-        self.followers = followers
-        self.followings = followings
+    @classmethod
+    def get_follower(self,limit=50,page_count_limit=3):
+        """
+        Gives the ids of followers\n
+        Default limit = 50
+        """
+        return self._build_follow(limit,page_count_limit,"followers")
 
-    def __repr__(self):
-        return 'upvote:{1} submitted:{2} made:{3} followers:{4} followings:{5}'.format(self.upvote,self.submitted,self.made,self.followers,self.followings)
+
+    @classmethod
+    def get_following(self,limit=50,page_count_limit=3):
+        """
+        Gives the ids of the people the user is following\n
+        Default limit = 50        
+        """
+
+        return self._build_follow(limit,page_count_limit,"followings")

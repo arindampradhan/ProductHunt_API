@@ -1,6 +1,5 @@
 """
-Python API for Product Hunt.
-
+This project is inspired from karan goel's Hacker News API
 @author Arindam Pradhan
 @email arindampradhan10@gmail.com
 """
