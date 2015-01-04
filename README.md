@@ -27,7 +27,7 @@ Installation
 Usage
 =====
 
-** NOTE: ** The product max limit have been set to 150.You can vary with any number between that.To change the max_limit refer to ProductHunt_API/ph/ph.py  
+** NOTE:** The product max limit have been set to 150.You can vary with any number between that.To change the max_limit refer to ProductHunt_API/ph/ph.py  
 
 
 ### Using `PH`
@@ -38,33 +38,6 @@ Usage
 	ph = PH
 	for product in ph.get_products(45,"top"):
 	    print (product.title,product.link)
-	
-
-### Using `User`
-
-####Initialize a user with `User.get()` method	
-
-	from ph import User
-	user = User.get(67477)
-	
-	user.get_follower() # gives the list of followers
-
-	user.get_following() # gives the list of the people the user if following
-
-	user.get_votes() # product id list of the product user has upvoted
-
-
-###Using `Product`
-
-Initialize with `Product.get()` method
-	
-	from ph import Product
-	product = Product.get(12839)
-
-	comments = product.get_comments()
-	for comment in comments:
-		print "\n{0} commented:".format(comment.user_name)
-		print comment.body
 
 
 API Reference
