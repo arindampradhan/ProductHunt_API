@@ -10,9 +10,9 @@ Features
 
 - Compatible with Python 2 (2.7+).
 - Supports page(num)
-- Retrieve comments from posts (levels supported as parent_id and comment_id) (`[Product].get_comments()`)
-- Pagination support for comments (simply they have different parent_id than comment_id for 2 level pagination)
-- Get post details for any Product (`Product.get(12839)`)
+- Retrieve comments from posts (`[Product].get_comments()`)
+- Pagination support for comments ( parent_id and comment_id for 2 level pagination)
+- Get post details for any Product (`[Product].get(12839)`)
 - Gets the User info ,Product info , Front page extraction
 - gets the User followers and the following ids
 - get ids of the upvoted product, followers and following from user
@@ -32,7 +32,7 @@ Usage
 
 ### Using `PH`
 
-Initialize with PH
+####Initialize with `PH`
 	
 	from ph import PH
 	ph = PH
@@ -42,7 +42,7 @@ Initialize with PH
 
 ### Using `User`
 
-Initialize a user with User.get() method	
+####Initialize a user with `User.get()` method	
 
 	from ph import User
 	user = User.get(67477)
@@ -56,7 +56,7 @@ Initialize a user with User.get() method
 
 ###Using `Product`
 
-Initialize with Product.get() method
+Initialize with `Product.get()` method
 	
 	from ph import Product
 	product = Product.get(12839)
