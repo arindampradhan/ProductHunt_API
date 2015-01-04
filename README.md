@@ -27,7 +27,8 @@ Installation
 Usage
 =====
 
-** NOTE:** The product max limit have been set to 150.You can vary with any number between that.To change the max_limit refer to ProductHunt_API/ph/ph.py  
+** NOTE:** The product max_limit have been set to 150.
+You can vary with any number between that.To change the max_limit refer to ./ProductHunt_API/ph/ph.py .  
 
 
 ### Using `PH`
