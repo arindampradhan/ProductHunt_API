@@ -1,4 +1,4 @@
-![Product News API](https://github.com/arindampradhan/ProductHunt_API/master/PH.png)
+![Product News API](https://github.com/arindampradhan/ProductHunt_API/blob/master/PH.png)
 
 Unofficial API for Product Hunt
 This API is created for educational purposes.I thought to do this project as I am learning python.
