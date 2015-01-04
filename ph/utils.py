@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -18,3 +18,13 @@ def comment_soup(product_id):
     """
     url = BASE_URL + '/posts/' + str(product_id)+ "?modal=true"
     return BeautifulSoup(requests.get(url).text)
+
+def striphtml(htmlTxt):
+    if htmlTxt is None:
+        return None
+    else:
+        temp = ''.join(BeautifulSoup(htmlTxt).findAll(text=True))
+        return " ".join(temp.split())
+
+def strp(word):
+    return str(word).lstrip().rstrip()

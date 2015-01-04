@@ -14,7 +14,7 @@ setup(
     packages=['ph'],
     license='MIT License',
     description='Python API for Product Hunt.',
-    long_description='Unofficial Python API for Product Hunt. Usage: https://github.com/karan/HackerNewsAPI.',
+    long_description='Unofficial Python API for Product Hunt. Usage: https://github.com/arindampradhan/ProductHunt_API.',
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',

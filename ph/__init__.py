@@ -1,5 +1,5 @@
 """
-This project is inspired from karan goel's Hacker News API
+This project is inspired from Karan Goel's Hacker News API
 @author Arindam Pradhan
 @email arindampradhan10@gmail.com
 """
