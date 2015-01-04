@@ -21,13 +21,14 @@ Features
 
 Installation
 ============
+Just clone the repo
 
 	python setup.py install
 
 Usage
 =====
 
-** NOTE:** The product max_limit have been set to 150.
+**NOTE:** The product max_limit have been set to 150.
 You can vary with any number between that.To change the max_limit refer to ./ProductHunt_API/ph/ph.py .  
 
 
@@ -93,9 +94,9 @@ API Reference
 
 	from ph import User
 	user = User.get(2)
-	user = User.get_following()
+	user.get_following()
 	
-	user = User.get_follower()
+	user.get_follower()
 
 
 ## Class: `Product`
