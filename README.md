@@ -64,7 +64,7 @@ API Reference
 	ph.get_stories(story_type='newest', limit=10)
 
 
-## `User`
+## Class: `User`
 
 ### Get a user from product hunt
 
@@ -80,24 +80,10 @@ API Reference
 	from ph import User
 	user = User.get(2)
 
-### Get followers of the initialized user `returns [list]`
 
-#### `get_follower`
-**Parameters:**
+### Get following and followers  of the initialized user `returns [list]`
 
-| Name | Type | Required | Description | Default |
-| ---- | ---- | -------- | ----------- | ------- |
-|||||
-**Example**
-
-	from ph import User
-	user = User.get(2)
-	user = User.get_follower()
-
-
-### Get followers of the initialized user `returns [list]`
-
-#### `get_following`
+#### `get_following` and `get_follower`
 **Parameters:**
 
 | Name | Type | Required | Description | Default |
@@ -108,9 +94,11 @@ API Reference
 	from ph import User
 	user = User.get(2)
 	user = User.get_following()
+	
+	user = User.get_follower()
 
 
-## `Product`
+## Class: `Product`
 
 ### Get a product post from product hunt
 
@@ -128,7 +116,7 @@ API Reference
 	product = Product.get(12838)
 
 
-## Comment
+## Class: `Comment`
 
 ### Get product comments for the intialized Product
 
