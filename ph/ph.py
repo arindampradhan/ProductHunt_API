@@ -64,7 +64,7 @@ class PH(object):
             submitter_id = submitter_card.find('a', {'data-component':"FollowMarker"})['data-follow-id']
             obj_product = Product(upvote,product_id,title,link,domain,submitter,submitter_id,published_time,num_comments)
             all_products.append(obj_product)
-        return  all_products
+        yield  all_products
 
     @classmethod      
     def get_products(self,limit=30,page_type=1):
@@ -202,14 +202,115 @@ class User(object):
         self.followings = followings
         self.twitter = twitter
 
-    @classmethod
     def __repr__(self):
-        print """
-        user_id = {0}
-        user_name = {1}
-        about = {2}
-        twitter = {3}""".format(str(self.user_id),self.user_name,self.about,self.twitter)
+        return """
+        user_id     : {0}
+        user_name   : {1}
+        about       : {2}
+        twitter     : {3}""".format(str(self.user_id),self.user_name,self.about,self.twitter)
+
+    def get_follower(self,limit=50,page_count_limit=""):
+        """
+        Gives the ids of followers\n
+        Default limit = 50
+        """
+        url = "{0}{1}/{2}".format(BASE_URL,self.user_id,"followers")
+        page_count=1
+        followers = []
+        count=0
+        while page_count < page_count_limit:
+            current_page = requests.get(url+"?page="+str(page_count)).text
+            soup  = BeautifulSoup(current_page)
+            follow_group = soup.find_all("li", class_="people--person")
+            
+            for follow in follow_group:
+                follow_id = follow.find('div', class_="user-hover-card").find('a', class_="button")['data-follow-id']
+                followers.append(follow_id)
+                count = count + 1
+            if count >= limit:
+                break
+            page_count = page_count+1
+            if len(soup.find('ul', class_="people").find_all('li',class_='people--person'))  == 0:
+                break
+        return followers[:limit]
+
+    def get_following(self,limit=50,page_count_limit=""):
+        """
+        Gives the ids of the people the user is following\n
+        Default limit = 50        
+        """
+        url = "{0}{1}/{2}".format(BASE_URL,self.user_id,"followings")
+        page_count=1
+        followers = []
+        count=0
+        while page_count < page_count_limit:
+            current_page = requests.get(url+"?page="+str(page_count)).text
+            soup  = BeautifulSoup(current_page)
+            follow_group = soup.find_all("li", class_="people--person")
+            
+            for follow in follow_group:
+                follow_id = follow.find('div', class_="user-hover-card").find('a', class_="button")['data-follow-id']
+                followers.append(follow_id)
+                count = count + 1
+            if count >= limit:
+                break
+            page_count = page_count+1
+            if len(soup.find('ul', class_="people").find_all('li',class_='people--person'))  == 0:
+                break
+        return followers[:limit]
+
+    def get_votes(self,limit=50,page_count_limit=""):
+        """
+        gives the ids of upvoted products,submitted products and made products\n
+        \tparam = upvoted\n (default)
+        \tparam = products\n
+        \tparam = posts\n 
+        """
         
+        if page_count_limit == "":
+            page_count_limit = int((limit+1)/50)
+        url = BASE_URL + str(self.user_id) 
+        page_count = 1
+        data_ids = []
+        while page_count <= page_count_limit:
+            current_page = requests.get(url+"?page="+str(page_count)).text
+            soup  = BeautifulSoup(current_page)
+            post_group = soup.find('ul',class_="posts-group")
+            post_list = post_group.find_all('li',class_="post")
+            for pst in post_list:
+                data_id = pst.find('div',class_="upvote")['data-vote-id']
+                data_ids.append(data_id)
+            page_count = page_count+1
+            if len(soup.find_all('li', class_="post")) is 0:
+                break
+        return data_ids[:limit]
+
+    # @classmethod
+    # def _build_follow(self,limit,page_count_limit,follow_type):
+    #     """
+    #     Type is a follower or following
+    #     """
+    #     print self.user_id
+    #     user_id = self.user_id
+    #     url = "{0}{1}/{2}".format(BASE_URL,user_id,follow_type)
+    #     page_count=1
+    #     followers = []
+    #     count=0
+    #     while page_count < page_count_limit:
+    #         current_page = requests.get(url+"?page="+str(page_count)).text
+    #         soup  = BeautifulSoup(current_page)
+    #         follow_group = soup.find_all("li", class_="people--person")
+            
+    #         for follow in follow_group:
+    #             follow_id = follow.find('div', class_="user-hover-card").find('a', class_="button")['data-follow-id']
+    #             followers.append(follow_id)
+    #             count = count + 1
+    #         if count >= limit:
+    #             break
+    #         page_count = page_count+1
+    #         if len(soup.find('ul', class_="people").find_all('li',class_='people--person'))  == 0:
+    #             break
+    #     return followers[:limit]
 
     @classmethod
     def get(self,user_id):
@@ -251,89 +352,13 @@ class User(object):
             u_num_made = upvote_u[2].string
             u_num_followers = upvote_u[-2].string
             u_num_following = upvote_u[-1].string
-            return User(user_id,user_name,about,u_num_upvote,u_num_submit,u_num_made,u_num_followers,u_num_following,u_twitter)
+            return  User(user_id,user_name,about,u_num_upvote,u_num_submit,u_num_made,u_num_followers,u_num_following,u_twitter)
         if len(upvote_u) == 4:
             u_num_upvote = upvote_u[0].string
             u_num_made = upvote_u[1].string
             u_num_followers = upvote_u[-2].string
             u_num_following = upvote_u[-1].string
             return User(user_id,user_name,about,u_num_upvote,None,u_num_made,u_num_followers,u_num_following,u_twitter)
-
-
-    @classmethod
-    def get_votes(self,limit=50,page_count_limit=""):
-        """
-        gives the ids of upvoted products,submitted products and made products\n
-        \tparam = upvoted\n (default)
-        \tparam = products\n
-        \tparam = posts\n 
-        """
-        if page_count_limit == "":
-            page_count_limit = int((limit+1)/50)
-        url = BASE_URL + str(self.twitter) 
-        page_count = 1
-        data_ids = []
-
-        while page_count < page_count_limit:
-
-            current_page = requests.get(url+"?page="+str(page_count)).text
-            soup  = BeautifulSoup(current_page)
-            post_group = soup.find('ul',class_="posts-group")
-            post_list = post_group.find_all('li',class_="post")
-            for pst in post_list:
-                data_id = pst.find('div',class_="upvote")['data-vote-id']
-                data_ids.append(data_id)
-            page_count = page_count+1
-            if len(soup.find_all('li', class_="post")) is 0:
-                break
-        yield data_ids[:limit]
-
-    @classmethod
-    def _build_follow(self,limit,page_count_limit,follow_type):
-        """
-        Type is a follower or following
-        """
-        user_id = self.user_id
-        url = "{0}{1}/{2}".format(BASE_URL,user_id,follow_type)
-        page_count=1
-        followers = []
-        count=0
-        while page_count < page_count_limit:
-            current_page = requests.get(url+"?page="+str(page_count)).text
-            soup  = BeautifulSoup(current_page)
-            follow_group = soup.find_all("li", class_="people--person")
-            
-            for follow in follow_group:
-                follow_id = follow.find('div', class_="user-hover-card").find('a', class_="button")['data-follow-id']
-                followers.append(follow_id)
-                count = count + 1
-            if count >= limit:
-                break
-            page_count = page_count+1
-            if len(soup.find('ul', class_="people").find_all('li',class_='people--person'))  == 0:
-                break
-        return followers[:limit]
-
-    @classmethod
-    def get_follower(self,limit=50,page_count_limit=""):
-        """
-        Gives the ids of followers\n
-        Default limit = 50
-        """
-        if page_count_limit == "":
-            page_count_limit = int((limit+1)/50)
-        return self._build_follow(limit,page_count_limit,"followers")
-
-
-    @classmethod
-    def get_following(self,limit=50,page_count_limit=""):
-        """
-        Gives the ids of the people the user is following\n
-        Default limit = 50        
-        """
-        if page_count_limit == "":
-            page_count_limit = int((limit+1)/50)
-        return self._build_follow(limit,page_count_limit,"followings")
 
 
 class Comment(object):
