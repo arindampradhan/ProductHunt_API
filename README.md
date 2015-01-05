@@ -64,7 +64,7 @@ API Reference
 	ph = PH()
 	ph.get_products(limit=30,page_type="newest")
 
-	ph.get_products(limit=30,page_type=2)
+	ph.get_products(limit=30,page_type="top")
 
 ## Class: `User`
 
