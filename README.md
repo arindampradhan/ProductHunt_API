@@ -168,15 +168,15 @@ API Reference
 
 ###Each `User` has the following properties
 
-- **user_id** = user_id -  the user's id
-- **user_name** = user_name - the user name of the profile
-- **about** = about - about the user's profile
-- **upvote** = upvote - number of products upvoted by user
-- **submitted** = submitted - number of products submitted by user
-- **made** = made - number of products made by the user
-- **followers** = followers - number of followers of the user profile
-- **followings** = followings - number of profiles the user is following
-- **twitter** = twitter - twitter profile name of the user
+- **user_id** -  the user's id
+- **user_name** - the user name of the profile
+- **about** - about the user's profile
+- **upvote** - number of products upvoted by user
+- **submitted** - number of products submitted by user
+- **made** - number of products made by the user
+- **followers** - number of followers of the user profile
+- **followings** - number of profiles the user is following
+- **twitter** - twitter profile name of the user
 
 
 TODO
