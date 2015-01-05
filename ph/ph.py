@@ -81,14 +81,14 @@ class PH(object):
         """
         max_limit = 150 # change it if you want more
 
-        if page_type == "newest":
-            page_type = 1
-        pager = page_type
         if type(page_type) == int:
             soup = get_soup(page_type)
         else:
             page_type = 1
             soup = get_soup(page_type)
+        if page_type == "newest":
+            page_type = 1
+        pager = page_type
 
         if limit == None or limit < 1 :
             limit = 30
@@ -218,7 +218,8 @@ class User(object):
         page_count=1
         followers = []
         count=0
-        while page_count < page_count_limit:
+        page_count_limit = int((limit+1)/50)
+        while page_count <= page_count_limit:
             current_page = requests.get(url+"?page="+str(page_count)).text
             soup  = BeautifulSoup(current_page)
             follow_group = soup.find_all("li", class_="people--person")
@@ -239,11 +240,12 @@ class User(object):
         Gives the ids of the people the user is following\n
         Default limit = 50        
         """
+        page_count_limit = int((limit+1)/50)
         url = "{0}{1}/{2}".format(BASE_URL,self.user_id,"followings")
         page_count=1
         followers = []
         count=0
-        while page_count < page_count_limit:
+        while page_count <= page_count_limit:
             current_page = requests.get(url+"?page="+str(page_count)).text
             soup  = BeautifulSoup(current_page)
             follow_group = soup.find_all("li", class_="people--person")
