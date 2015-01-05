@@ -62,8 +62,9 @@ API Reference
 
 	from ph import PH
 	ph = PH()
-	ph.get_stories(story_type='newest', limit=10)
+	ph.get_products(limit=30,page_type="newest")
 
+	ph.get_products(limit=30,page_type=2)
 
 ## Class: `User`
 

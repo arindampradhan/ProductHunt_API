@@ -64,7 +64,7 @@ class PH(object):
             submitter_id = submitter_card.find('a', {'data-component':"FollowMarker"})['data-follow-id']
             obj_product = Product(upvote,product_id,title,link,domain,submitter,submitter_id,published_time,num_comments)
             all_products.append(obj_product)
-        yield  all_products
+        return all_products
 
     @classmethod      
     def get_products(self,limit=30,page_type=1):
