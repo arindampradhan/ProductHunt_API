@@ -4,6 +4,8 @@ Unofficial API for Product Hunt
 This API is created for educational purposes.I thought to do this project as I am learning python.
 The official api can be found on the developer website of product hunt.Highly recommend using that.
 
+**Important:** This project is no longer supported, the html of the website changes very often..
+Any ways check out my new api for [Hacker News](https://github.com/arindampradhan/yaaHN).It is more stable.
 
 Features
 ========
